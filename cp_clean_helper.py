@@ -146,6 +146,13 @@ def in_new_feats(df):
 	# Count of total number of physicians for each beneficiary
 
 	phy_df = df[['BeneID','AttendingPhysician','OperatingPhysician','OtherPhysician']]\
+			  .drop_duplicates()
+
+	phy_df = phy_df.loc[phy_df.AttendingPhysician != 'None',:]\
+               	   .loc[phy_df.OperatingPhysician != 'None',:]\
+                   .loc[phy_df.OtherPhysician != 'None',:]	
+
+	phy_df = phy_df[['BeneID','AttendingPhysician','OperatingPhysician','OtherPhysician']]\
 			  .groupby('BeneID').agg(['count']).reset_index()
 
 	phy_df.columns=['Bene_ID','Att_cnt', 'Op_cnt', 'Othr_cnt']
@@ -154,20 +161,25 @@ def in_new_feats(df):
 	df['Physician_Count'] = df['Physician_Count'].fillna(0)
 	df['Physician_Count'] = df['Physician_Count'].astype(int)
 
-	# Count of claims and hospitals visited per beneficiary
+	# Count of claims and hospitals associated with per beneficiary
 
-	clprv_df = df[['BeneID','ClaimID','Provider']].groupby('BeneID')\
-				 .agg(['count']).reset_index()
+	cl_df = df[['BeneID','ClaimID']].groupby('BeneID').agg(['count']).reset_index()
+	cl_df.columns=['Bene_ID','Cl_cnt']
 
-	clprv_df.columns=['Bene_ID','Cl_cnt', 'Prov_cnt']
-
-	df['Claim_Count'] = clprv_df['Cl_cnt']
+	df['Claim_Count'] = cl_df['Cl_cnt']
 	df['Claim_Count'] = df['Claim_Count'].fillna(0)
 	df['Claim_Count'] = df['Claim_Count'].astype(int)
 
-	df['Hospital_Count'] = clprv_df['Prov_cnt']
+
+	prv_df = df[['BeneID','Provider']].drop_duplicates()
+	prv_df = prv_df[['BeneID','Provider']].groupby('BeneID')\
+				 .agg(['count']).reset_index()
+
+	prv_df.columns=['Bene_ID','Prov_cnt']
+
+	df['Hospital_Count'] = prv_df['Prov_cnt']
 	df['Hospital_Count'] = df['Hospital_Count'].fillna(0)
-	df['Hospital_Count'] = df['Hospital_Count'].astype(int)	
+	df['Hospital_Count'] = df['Hospital_Count'].astype(int)
 
 def out_new_feats(df):
 
@@ -203,6 +215,13 @@ def out_new_feats(df):
 	# Count of total number of physicians for each beneficiary
 
 	phy_df = df[['BeneID','AttendingPhysician','OperatingPhysician','OtherPhysician']]\
+			  .drop_duplicates()
+
+	phy_df = phy_df.loc[phy_df.AttendingPhysician != 'None',:]\
+               	   .loc[phy_df.OperatingPhysician != 'None',:]\
+                   .loc[phy_df.OtherPhysician != 'None',:]
+
+	phy_df = phy_df[['BeneID','AttendingPhysician','OperatingPhysician','OtherPhysician']]\
 			  .groupby('BeneID').agg(['count']).reset_index()
 
 	phy_df.columns=['Bene_ID','Att_cnt', 'Op_cnt', 'Othr_cnt']
@@ -211,18 +230,23 @@ def out_new_feats(df):
 	df['Physician_Count'] = df['Physician_Count'].fillna(0)
 	df['Physician_Count'] = df['Physician_Count'].astype(int)
 
-	# Count of claims and hospitals visited per beneficiary
+	# Count of claims and hospitals associated with per beneficiary
 
-	clprv_df = df[['BeneID','ClaimID','Provider']].groupby('BeneID')\
-				 .agg(['count']).reset_index()
+	cl_df = df[['BeneID','ClaimID']].groupby('BeneID').agg(['count']).reset_index()
+	cl_df.columns=['Bene_ID','Cl_cnt']
 
-	clprv_df.columns=['Bene_ID','Cl_cnt', 'Prov_cnt']
-
-	df['Claim_Count'] = clprv_df['Cl_cnt']
+	df['Claim_Count'] = cl_df['Cl_cnt']
 	df['Claim_Count'] = df['Claim_Count'].fillna(0)
 	df['Claim_Count'] = df['Claim_Count'].astype(int)
 
-	df['Hospital_Count'] = clprv_df['Prov_cnt']
+
+	prv_df = df[['BeneID','Provider']].drop_duplicates()
+	prv_df = prv_df[['BeneID','Provider']].groupby('BeneID')\
+				 .agg(['count']).reset_index()
+
+	prv_df.columns=['Bene_ID','Prov_cnt']
+
+	df['Hospital_Count'] = prv_df['Prov_cnt']
 	df['Hospital_Count'] = df['Hospital_Count'].fillna(0)
 	df['Hospital_Count'] = df['Hospital_Count'].astype(int)
 
@@ -248,6 +272,71 @@ def inout_label_encode(df):
 	for col in col_list1:
 		label_encoder = preprocessing.LabelEncoder()
 		df[col] = label_encoder.fit_transform(df[col])
+
+def code_count(df):
+
+	diag_cnt_df = df[['Provider','ClmDiagnosisCode_1','ClmDiagnosisCode_2',\
+					  'ClmDiagnosisCode_3','ClmDiagnosisCode_4','ClmDiagnosisCode_5',\
+					  'ClmDiagnosisCode_6','ClmDiagnosisCode_7','ClmDiagnosisCode_8',\
+					  'ClmDiagnosisCode_9','ClmDiagnosisCode_10']].drop_duplicates()
+
+	diag_cnt_df = diag_cnt_df.loc[diag_cnt_df.ClmDiagnosisCode_1 != 'None',:]\
+               	   			 .loc[diag_cnt_df.ClmDiagnosisCode_2 != 'None',:]\
+                   			 .loc[diag_cnt_df.ClmDiagnosisCode_3 != 'None',:]\
+                   			 .loc[diag_cnt_df.ClmDiagnosisCode_4 != 'None',:]\
+                   			 .loc[diag_cnt_df.ClmDiagnosisCode_5 != 'None',:]\
+                   			 .loc[diag_cnt_df.ClmDiagnosisCode_6 != 'None',:]\
+                   			 .loc[diag_cnt_df.ClmDiagnosisCode_7 != 'None',:]\
+                   			 .loc[diag_cnt_df.ClmDiagnosisCode_8 != 'None',:]\
+                   			 .loc[diag_cnt_df.ClmDiagnosisCode_9 != 'None',:]\
+                   			 .loc[diag_cnt_df.ClmDiagnosisCode_10 != 'None',:]
+
+
+	diag_cnt_df = diag_cnt_df[['Provider','ClmDiagnosisCode_1','ClmDiagnosisCode_2',\
+					  'ClmDiagnosisCode_3','ClmDiagnosisCode_4','ClmDiagnosisCode_5',\
+					  'ClmDiagnosisCode_6','ClmDiagnosisCode_7','ClmDiagnosisCode_8',\
+					  'ClmDiagnosisCode_9','ClmDiagnosisCode_10']].\
+					   groupby('Provider').agg(['count']).reset_index()
+
+	diag_cnt_df.columns=['Provider','CD1','CD2', 'CD3', 'CD4',\
+						 'CD5','CD6','CD7', 'CD8', 'CD9','CD10']
+
+	df['Diag_Code_Cnt'] = diag_cnt_df['CD1'] + diag_cnt_df['CD2'] + diag_cnt_df['CD3'] +\
+						  diag_cnt_df['CD4'] + diag_cnt_df['CD5'] + diag_cnt_df['CD6'] +\
+						  diag_cnt_df['CD7'] + diag_cnt_df['CD8'] + diag_cnt_df['CD9'] +\
+						  diag_cnt_df['CD10']
+
+	df['Diag_Code_Cnt'] = df['Diag_Code_Cnt'].fillna(0)
+	df['Diag_Code_Cnt'] = df['Diag_Code_Cnt'].astype(int)
+					  
+
+	proc_cnt_df = df[['Provider','ClmProcedureCode_1', 'ClmProcedureCode_2','ClmProcedureCode_3']].\
+					   drop_duplicates()
+					   
+	proc_cnt_df = proc_cnt_df.loc[proc_cnt_df.ClmProcedureCode_1 != 'None',:]\
+               	   			 .loc[proc_cnt_df.ClmProcedureCode_2 != 'None',:]\
+                   			 .loc[proc_cnt_df.ClmProcedureCode_3 != 'None',:]\
+    	
+	proc_cnt_df = proc_cnt_df[['Provider','ClmProcedureCode_1', 'ClmProcedureCode_2','ClmProcedureCode_3']].\
+					   groupby('Provider').agg(['count']).reset_index()
+
+	proc_cnt_df.columns=['Provider','CD1','CD2','CD3']
+
+	df['Proc_Code_Cnt'] = proc_cnt_df['CD1'] + proc_cnt_df['CD2'] + proc_cnt_df['CD3']
+
+	df['Proc_Code_Cnt'] = df['Proc_Code_Cnt'].fillna(0)
+	df['Proc_Code_Cnt'] = df['Proc_Code_Cnt'].astype(int)
+
+def chr_cond_cnt(df):
+
+	# Counting all chronic conditions per claim
+
+	df['Chr_Cond_Count'] = df['RenalDiseaseIndicator'] + df['ChronicCond_Heartfailure'] + df['ChronicCond_KidneyDisease'] +\
+	df['ChronicCond_Cancer'] + df['ChronicCond_ObstrPulmonary'] + df['ChronicCond_Alzheimer'] +\
+	df['ChronicCond_Depression'] + df['ChronicCond_Diabetes'] + df['ChronicCond_IschemicHeart'] +\
+	df['ChronicCond_Osteoporasis'] + df['ChronicCond_rheumatoidarthritis'] + df['ChronicCond_stroke']	
+
+
 
 
 
