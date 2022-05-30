@@ -149,8 +149,8 @@ def in_new_feats(df):
 			  .drop_duplicates()
 
 	phy_df = phy_df.loc[phy_df.AttendingPhysician != 'None',:]\
-               	   .loc[phy_df.OperatingPhysician != 'None',:]\
-                   .loc[phy_df.OtherPhysician != 'None',:]	
+				   .loc[phy_df.OperatingPhysician != 'None',:]\
+				   .loc[phy_df.OtherPhysician != 'None',:]	
 
 	phy_df = phy_df[['BeneID','AttendingPhysician','OperatingPhysician','OtherPhysician']]\
 			  .groupby('BeneID').agg(['count']).reset_index()
@@ -218,8 +218,8 @@ def out_new_feats(df):
 			  .drop_duplicates()
 
 	phy_df = phy_df.loc[phy_df.AttendingPhysician != 'None',:]\
-               	   .loc[phy_df.OperatingPhysician != 'None',:]\
-                   .loc[phy_df.OtherPhysician != 'None',:]
+				   .loc[phy_df.OperatingPhysician != 'None',:]\
+				   .loc[phy_df.OtherPhysician != 'None',:]
 
 	phy_df = phy_df[['BeneID','AttendingPhysician','OperatingPhysician','OtherPhysician']]\
 			  .groupby('BeneID').agg(['count']).reset_index()
@@ -281,15 +281,15 @@ def code_count(df):
 					  'ClmDiagnosisCode_9','ClmDiagnosisCode_10']].drop_duplicates()
 
 	diag_cnt_df = diag_cnt_df.loc[diag_cnt_df.ClmDiagnosisCode_1 != 'None',:]\
-               	   			 .loc[diag_cnt_df.ClmDiagnosisCode_2 != 'None',:]\
-                   			 .loc[diag_cnt_df.ClmDiagnosisCode_3 != 'None',:]\
-                   			 .loc[diag_cnt_df.ClmDiagnosisCode_4 != 'None',:]\
-                   			 .loc[diag_cnt_df.ClmDiagnosisCode_5 != 'None',:]\
-                   			 .loc[diag_cnt_df.ClmDiagnosisCode_6 != 'None',:]\
-                   			 .loc[diag_cnt_df.ClmDiagnosisCode_7 != 'None',:]\
-                   			 .loc[diag_cnt_df.ClmDiagnosisCode_8 != 'None',:]\
-                   			 .loc[diag_cnt_df.ClmDiagnosisCode_9 != 'None',:]\
-                   			 .loc[diag_cnt_df.ClmDiagnosisCode_10 != 'None',:]
+							 .loc[diag_cnt_df.ClmDiagnosisCode_2 != 'None',:]\
+							 .loc[diag_cnt_df.ClmDiagnosisCode_3 != 'None',:]\
+							 .loc[diag_cnt_df.ClmDiagnosisCode_4 != 'None',:]\
+							 .loc[diag_cnt_df.ClmDiagnosisCode_5 != 'None',:]\
+							 .loc[diag_cnt_df.ClmDiagnosisCode_6 != 'None',:]\
+							 .loc[diag_cnt_df.ClmDiagnosisCode_7 != 'None',:]\
+							 .loc[diag_cnt_df.ClmDiagnosisCode_8 != 'None',:]\
+							 .loc[diag_cnt_df.ClmDiagnosisCode_9 != 'None',:]\
+							 .loc[diag_cnt_df.ClmDiagnosisCode_10 != 'None',:]
 
 
 	diag_cnt_df = diag_cnt_df[['Provider','ClmDiagnosisCode_1','ClmDiagnosisCode_2',\
@@ -314,9 +314,9 @@ def code_count(df):
 					   drop_duplicates()
 					   
 	proc_cnt_df = proc_cnt_df.loc[proc_cnt_df.ClmProcedureCode_1 != 'None',:]\
-               	   			 .loc[proc_cnt_df.ClmProcedureCode_2 != 'None',:]\
-                   			 .loc[proc_cnt_df.ClmProcedureCode_3 != 'None',:]\
-    	
+							 .loc[proc_cnt_df.ClmProcedureCode_2 != 'None',:]\
+							 .loc[proc_cnt_df.ClmProcedureCode_3 != 'None',:]\
+		
 	proc_cnt_df = proc_cnt_df[['Provider','ClmProcedureCode_1', 'ClmProcedureCode_2','ClmProcedureCode_3']].\
 					   groupby('Provider').agg(['count']).reset_index()
 
@@ -337,14 +337,41 @@ def chr_cond_cnt(df):
 	df['ChronicCond_Osteoporasis'] + df['ChronicCond_rheumatoidarthritis'] + df['ChronicCond_stroke']	
 
 
+def mba_process(df):
 
+	# Creating categories
 
+	df["Gender"] = df["Gender"].apply(lambda x: "Male" if x == 1 else "Female")
 
+	df["ChronicCond_Alzheimer"] = df["ChronicCond_Alzheimer"]\
+					.apply(lambda x: "no_alzheimer" if x == 1 else "has_alzheimer")
 
+	df["ChronicCond_Heartfailure"] = df["ChronicCond_Heartfailure"]\
+					.apply(lambda x: "no_heartds" if x == 1 else "has_heartds")
 
+	df["ChronicCond_KidneyDisease"] = df["ChronicCond_KidneyDisease"]\
+					.apply(lambda x: "no_kidneyds" if x == 1 else "has_kidneyds")
 
+	df["ChronicCond_Cancer"] = df["ChronicCond_Cancer"]\
+					.apply(lambda x: "no_cancer" if x == 1 else "has_cancer")
 
+	df["ChronicCond_ObstrPulmonary"] = df["ChronicCond_ObstrPulmonary"]\
+					.apply(lambda x: "no_obstrpulmonary" if x == 1 else "has_obstrpulmonary")								
 
+	df["ChronicCond_Depression"] = df["ChronicCond_Depression"]\
+					.apply(lambda x: "no_depression" if x == 1 else "has_depression")				
+
+	df["ChronicCond_Diabetes"] = df["ChronicCond_Diabetes"]\
+					.apply(lambda x: "no_diabetes" if x == 1 else "has_diabetes")
+					
+	df["ChronicCond_Osteoporasis"] = df["ChronicCond_Osteoporasis"]\
+					.apply(lambda x: "no_osteoporasis" if x == 1 else "has_osteoporasis")								
+
+	df["ChronicCond_rheumatoidarthritis"] = df["ChronicCond_rheumatoidarthritis"]\
+					.apply(lambda x: "no_rharthritis" if x == 1 else "has_rharthritis")				
+
+	df["ChronicCond_stroke"] = df["ChronicCond_stroke"]\
+					.apply(lambda x: "no_stroke" if x == 1 else "has_stroke")				
 
 
 
