@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from math import sqrt
 from sklearn import preprocessing
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler,RobustScaler
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import f1_score
 from sklearn.metrics import accuracy_score
@@ -11,12 +11,21 @@ from sklearn.metrics import precision_score
 from sklearn.metrics import recall_score
 from sklearn.metrics import average_precision_score
 
-
 def std_num_cols(df):
 
 	# Creating a scalar object
 
 	scaler = StandardScaler()
+
+	# Standardizind the dataframe
+	
+	df = scaler.fit_transform(df)
+
+def rb_scale_cols(df):
+
+	# Creating a scalar object
+
+	scaler = RobustScaler()
 
 	# Standardizind the dataframe
 	
